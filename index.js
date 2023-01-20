@@ -43,11 +43,15 @@ function anotherOne() {
       if (response.choice === "VIEW EMPLOYEES") {
         viewEmployees();
       }
+      if (response.choice === "ADD DEPARTMENT") {
+        addDepartment();
+      }
       if (response.choice === "EXIT") {
         process.exit();
-      } else {
-        anotherOne();
       }
+      // else {
+      //   anotherOne();
+      // }
     });
 }
 
@@ -74,9 +78,20 @@ function viewEmployees() {
 
 // Function to add Department ------- NEED TO FINISH
 function addDepartment() {
-  db.query("SELECT * FROM employee", function (err, results) {
-    console.table(results);
-  });
+  inquirer
+    .prompt([
+      {
+        message: "What is the department name",
+        name: "name",
+      },
+    ])
+    .then((answer) => {
+      db.query("INSERT INTO department SET ?", answer, function (err, results) {
+        console.table(results);
+        console.log("Department added successfully");
+        anotherOne();
+      });
+    });
 }
 
 anotherOne();
