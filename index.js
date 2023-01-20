@@ -28,6 +28,9 @@ function anotherOne() {
           { name: "View all roles", value: "VIEW ROLES" },
           { name: "View all employees", value: "VIEW EMPLOYEES" },
           { name: "Add a department", value: "ADD DEPARTMENT" },
+          { name: "Add a role", value: "ADD ROLE" },
+          { name: "Add an employee", value: "ADD EMPLOYEE" },
+          { name: "Update an employee", value: "UPDATE EMPLOYEE" },
           { name: "Exit", value: "EXIT" },
         ],
       },
@@ -46,12 +49,18 @@ function anotherOne() {
       if (response.choice === "ADD DEPARTMENT") {
         addDepartment();
       }
+      if (response.choice === "ADD ROLE") {
+        addRole();
+      }
+      if (response.choice === "ADD EMPLOYEE") {
+        addEmployee();
+      }
+      if (response.choice === "UPDATE EMPLOYEE") {
+        updateEmployee();
+      }
       if (response.choice === "EXIT") {
         process.exit();
       }
-      // else {
-      //   anotherOne();
-      // }
     });
 }
 
@@ -76,7 +85,7 @@ function viewEmployees() {
   });
 }
 
-// Function to add Department ------- NEED TO FINISH
+// Function to add Department
 function addDepartment() {
   inquirer
     .prompt([
@@ -93,5 +102,39 @@ function addDepartment() {
       });
     });
 }
+
+// Function to Add a Role
+function addRole() {
+  db.query("SELECT * FROM department", function (err, results) {
+    const departments = results.map((department) => ({ name: department.name, value: department.id }));
+    inquirer
+      .prompt([
+        {
+          message: "What is the Role Title?",
+          name: "title",
+        },
+        {
+          message: "What is the Salary?",
+          name: "salary",
+        },
+        {
+          type: "list",
+          message: "What department does the role belong to?",
+          name: "department_id",
+          choices: departments,
+        },
+      ])
+      .then((answer) => {
+        db.query("INSERT INTO role SET ?", answer, function (err, results) {
+          console.log("Role added successfully");
+          anotherOne();
+        });
+      });
+  });
+}
+
+// Function to Add an Employee
+
+// Function to Update an Employee
 
 anotherOne();
