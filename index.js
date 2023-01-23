@@ -134,7 +134,45 @@ function addRole() {
 }
 
 // Function to Add an Employee
-
+function addEmployee() {
+  db.query("SELECT * FROM employee", function (err, results) {
+    const manager = results.map((manager) => ({ name: manager.first_name + " " + manager.last_name, value: manager.id }));
+    db.query("SELECT * FROM role", function (err, results) {
+      const role = results.map((role) => ({ name: role.title, value: role.id }));
+      console.log(manager, role);
+      inquirer
+        .prompt([
+          {
+            message: "What is the employee's first name?",
+            name: "first_name",
+          },
+          {
+            message: "What is the employee's last name?",
+            name: "last_name",
+          },
+          {
+            type: "list",
+            message: "What role does this employee have?",
+            name: "role_id",
+            choices: role,
+          },
+          {
+            type: "list",
+            message: "Who is the employee's manager?",
+            name: "manager_id",
+            choices: manager,
+          },
+        ])
+        .then((answer) => {
+          console.log(answer);
+          db.query("INSERT INTO employee SET ?", answer, function (err, results) {
+            console.log("Employee added successfully");
+            anotherOne();
+          });
+        });
+    });
+  });
+}
 // Function to Update an Employee
 
 anotherOne();
