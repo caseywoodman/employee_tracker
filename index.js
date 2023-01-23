@@ -139,7 +139,6 @@ function addEmployee() {
     const manager = results.map((manager) => ({ name: manager.first_name + " " + manager.last_name, value: manager.id }));
     db.query("SELECT * FROM role", function (err, results) {
       const role = results.map((role) => ({ name: role.title, value: role.id }));
-      console.log(manager, role);
       inquirer
         .prompt([
           {
@@ -174,5 +173,76 @@ function addEmployee() {
   });
 }
 // Function to Update an Employee
+function updateEmployee() {
+  db.query("SELECT * FROM employee", function (err, results) {
+    const employee = results.map((employee) => ({ name: employee.first_name + " " + employee.last_name, value: employee.id }));
+    db.query("SELECT * FROM role", function (err, results) {
+      const role = results.map((role) => ({ name: role.title, value: role.id }));
+      db.query("SELECT * FROM employee", function (err, results) {
+        const manager = results.map((manager) => ({ name: manager.first_name + " " + manager.last_name, value: manager.id }));
+        inquirer
+          .prompt([
+            {
+              type: "list",
+              message: "What would you like to update?",
+              name: "update_selection",
+              choices: ["role", "manager"],
+            },
+          ])
+          .then((answer) => {
+            console.log(answer.update_selection);
+            if (answer.update_selection === "role") {
+              inquirer
+                .prompt([
+                  {
+                    type: "list",
+                    message: "What employee do you want to update?",
+                    name: "employee_id",
+                    choices: employee,
+                  },
+                  {
+                    type: "list",
+                    message: "What is the new Role for this Employee?",
+                    name: "role_id",
+                    choices: role,
+                  },
+                ])
+                .then((answer) => {
+                  console.log(answer.role_id, answer.employee_id);
+                  const params = [answer.role_id, answer.employee_id];
+                  console.log(params);
+                  db.query("UPDATE employee SET role_id = ? WHERE id = ?", params, function (err, results) {
+                    console.log("Employee Role Updated successfully");
+                  });
+                });
+            }
+            if (answer.update_selection === "manager") {
+              inquirer
+                .prompt([
+                  {
+                    type: "list",
+                    message: "What employee do you want to update?",
+                    name: "employee_id",
+                    choices: employee,
+                  },
+                  {
+                    type: "list",
+                    message: "Who is the new manager for this employee Employee?",
+                    name: "manager_id",
+                    choices: manager,
+                  },
+                ])
+                .then((answer) => {
+                  const params = [answer.manager_id, answer.employee_id];
+                  db.query("UPDATE employee SET manager_id = ? WHERE id = ?", params, function (err, results) {
+                    console.log("Employee Manager Updated successfully");
+                  });
+                });
+            }
+          });
+      });
+    });
+  });
+}
 
 anotherOne();
